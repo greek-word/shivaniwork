@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Page Not Found | Nation Scholars</title>
+    <!-- Google Fonts: Poppins (matching root.css) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ----- GLOBAL RESET & VARIABLES (matching root.css style) ----- */
+        :root {
+            --primary: #0a3d91;
+            --secondary: #f57c00;
+            --light: #f9fbff;
+            --dark: #1c1c1c;
+            --error-gradient-start: #0a3d91;
+            --error-gradient-end: #062b66;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER (matching main site style) ===== */
+        header {
+            background: linear-gradient(120deg, var(--primary), #062b66);
+            color: #fff;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 28px;
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            color: var(--secondary);
+        }
+
+        /* simple mobile nav adjustment */
+        @media (max-width: 700px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .nav a {
+                margin: 0 12px;
+                font-size: 14px;
+            }
+        }
+
+        /* ===== MAIN 404 SECTION ===== */
+        .error-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 8%;
+            min-height: 70vh;
+        }
+
+        .error-content {
+            max-width: 900px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            text-align: center;
+            padding: 50px 30px 60px;
+            transition: 0.3s;
+            border: 1px solid rgba(10, 61, 145, 0.1);
+        }
+
+        /* 404 illustration area */
+        .error-code {
+            font-size: 160px;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -4px;
+            text-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .error-icon {
+            font-size: 80px;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .error-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 18px;
+        }
+
+        .error-message {
+            font-size: 18px;
+            color: #4a5568;
+            max-width: 550px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        /* search suggestion box */
+        .search-suggestion {
+            background: var(--light);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            max-width: 480px;
+            margin: 20px auto 25px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .search-suggestion input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .search-suggestion button {
+            background: var(--primary);
+            border: none;
+            padding: 0 24px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+            height: 52px;
+        }
+
+        .search-suggestion button:hover {
+            background: var(--secondary);
+        }
+
+        /* button group */
+        .action-buttons {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0 15px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.25s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-primary:hover {
+            background: #062b66;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(10, 61, 145, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 28px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* helpful links section */
+        .helpful-links {
+            margin-top: 40px;
+            border-top: 1px solid #edf2f7;
+            padding-top: 30px;
+        }
+
+        .helpful-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .links-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .links-grid a {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 15px;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .links-grid a i {
+            font-size: 14px;
+        }
+
+        .links-grid a:hover {
+            color: var(--secondary);
+            transform: translateX(3px);
+        }
+
+        /* footer matching design */
+        footer {
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            padding: 28px 20px;
+            margin-top: auto;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #ffd966;
+            text-decoration: none;
+        }
+
+        /* floating chat icon dummy (cosmetic) but functional? just for ambiance matching original css */
+        .chat-bot-demo {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 999;
+            background: linear-gradient(135deg, var(--primary), #062b66);
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 26px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-bot-demo:hover {
+            transform: scale(1.05);
+            background: var(--secondary);
+        }
+
+        /* responsive adjustments */
+        @media (max-width: 650px) {
+            .error-code {
+                font-size: 110px;
+            }
+            .error-title {
+                font-size: 26px;
+            }
+            .error-content {
+                padding: 35px 20px 45px;
+            }
+            .search-suggestion {
+                max-width: 100%;
+            }
+            .action-buttons {
+                gap: 12px;
+            }
+            .btn-primary, .btn-outline {
+                padding: 10px 22px;
+                font-size: 13px;
+            }
+        }
+        /* small animation */
+        @keyframes floatSoft {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+        .error-icon {
+            animation: floatSoft 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header (consistent with main website) -->
+    <header>
+        <a href="#" class="logo">Nation<span>Scholars</span></a>
+        <div class="nav">
+            <a href="#"><i class="fas fa-home"></i> Home</a>
+            <a href="#"><i class="fas fa-graduation-cap"></i> Courses</a>
+            <a href="#"><i class="fas fa-globe"></i> Universities</a>
+            <a href="#"><i class="fas fa-chalkboard-user"></i> About</a>
+            <a href="#"><i class="fas fa-phone-alt"></i> Contact</a>
+        </div>
+    </header>
+
+    <!-- 404 ERROR SECTION (creative, useful, brand-aligned) -->
+    <div class="error-container">
+        <div class="error-content">
+            <!-- playful 404 graphic -->
+            <div class="error-icon">
+                <i class="fas fa-map-signs"></i>
+            </div>
+            <div class="error-code">404</div>
+            <div class="error-title">Oops! Page not found</div>
+            <div class="error-message">
+                The page you are looking for might have been removed, had its name changed, 
+                or is temporarily unavailable. But don't worry — we’re here to guide you back!
+            </div>
+
+            <!-- 
+            <div class="search-suggestion">
+                <input type="text" id="errorSearchInput" placeholder="Search for courses, universities, or guides...">
+                <button id="searchErrorBtn"><i class="fas fa-search"></i></button>
+            </div>-->
+
+            <!-- primary action buttons -->
+            <div class="action-buttons">
+                <a href="#" class="btn-primary" id="backHomeBtn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+                <a href="#" class="btn-outline" id="contactSupportBtn"><i class="fas fa-headset"></i> Contact Support</a>
+            </div>
+
+            <!-- helpful quick links (internal navigation) -->
+            <div class="helpful-links">
+                <div class="helpful-title">✨ You might be looking for:</div>
+                <div class="links-grid">
+                    <a href="#"><i class="fas fa-university"></i> Top Universities</a>
+                    <a href="#"><i class="fas fa-book-open"></i> Study Abroad</a>
+                    <a href="#"><i class="fas fa-chart-line"></i> Career Counseling</a>
+                    <a href="#"><i class="fas fa-file-alt"></i> Admission 2026</a>
+                    <a href="#"><i class="fas fa-comments"></i> Student Reviews</a>
+                </div>
+                <div style="margin-top: 20px; font-size: 13px; color: #6c757d;">
+                    <i class="fas fa-life-ring"></i> Need immediate help? <a href="#" style="color: var(--secondary); text-decoration: none;">Chat with experts</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer (matching original design) -->
+    <footer>
+        <p>&copy; 2026 Nation Scholars — Empowering Global Education. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+        <p style="margin-top: 8px; font-size: 12px;"><i class="fas fa-graduation-cap"></i> Your trusted partner for overseas education & career growth</p>
+    </footer>
+
+
+</body>
+</html>
