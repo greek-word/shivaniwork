@@ -694,27 +694,34 @@ RIGHT SIDE -->
     
     // --- AUTO SCROLL LOGIC (default ON) ---
     let autoScrollInterval = null;
-    let isAutoScrolling = true;      // Default: true (auto scroll enabled by default)
-    const AUTO_SCROLL_STEP = 1.15;    // smooth per frame
-    let scrollActive = true;
+    let isAutoScrolling = true;
+    const AUTO_SCROLL_STEP = 1.15;
+    let isResetting = false;
+    let hoverPaused = false;
     
-    // Function to start auto-scroll (infinite smooth scroll, loop at bottom)
+    // Function to start auto-scroll
     function startAutoScroll() {
+      if (!scrollContainer) return;
       if (autoScrollInterval) clearInterval(autoScrollInterval);
+      
       autoScrollInterval = setInterval(() => {
-        if (!scrollContainer || !isAutoScrolling) return;
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-        // if near bottom (< 8px) then smoothly reset to top for continuous looping
-        if (scrollTop + clientHeight >= scrollHeight - 10) {
-          scrollContainer.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
+        if (!scrollContainer || !isAutoScrolling || isResetting || hoverPaused) return;
+        
+        const scrollTop = scrollContainer.scrollTop;
+        const scrollHeight = scrollContainer.scrollHeight;
+        const clientHeight = scrollContainer.clientHeight;
+        
+        // Check if near bottom (within 5px)
+        if (scrollTop + clientHeight >= scrollHeight - 5) {
+          isResetting = true;
+          scrollContainer.scrollTop = 0; // Instant reset to top
+          
+          // Small delay to prevent immediate re-trigger
+          setTimeout(() => {
+            isResetting = false;
+          }, 50);
         } else {
-          scrollContainer.scrollBy({
-            top: AUTO_SCROLL_STEP,
-            behavior: 'auto'
-          });
+          scrollContainer.scrollTop += AUTO_SCROLL_STEP;
         }
       }, 28); // ~36fps smooth auto scroll
     }
@@ -726,52 +733,69 @@ RIGHT SIDE -->
       }
     }
     
-    // Pause auto-scroll on hover (user experience: while hovering, pause)
+    // Pause auto-scroll on hover
     const noticeBox = document.querySelector('.notice-box');
-    if (noticeBox) {
+    if (noticeBox && scrollContainer) {
       noticeBox.addEventListener('mouseenter', () => {
-        if (isAutoScrolling) {
-          stopAutoScroll();
-        }
+        hoverPaused = true;
+        stopAutoScroll();
       });
+      
       noticeBox.addEventListener('mouseleave', () => {
+        hoverPaused = false;
         if (isAutoScrolling) {
-          // resume auto scroll
           startAutoScroll();
         }
       });
     }
     
-    // initialize auto scroll by default
-    startAutoScroll();
+    // Initialize auto scroll by default
+    if (scrollContainer) {
+      startAutoScroll();
+    }
     
     // ------------------------------------------------------------------
-    // VIEW ALL FUNCTIONALITY: show modal with all notices (full list)
+    // VIEW ALL FUNCTIONALITY: show modal with all notices
     // ------------------------------------------------------------------
     function getAllNoticeData() {
-      // collect all .notice-item elements from the scroll area
       const items = document.querySelectorAll('#noticeScrollContainer .notice-item');
       const noticesArray = [];
+      
       items.forEach((item, idx) => {
         const titleElem = item.querySelector('h3');
         const descElem = item.querySelector('p');
         const metaElem = item.querySelector('.notice-meta');
+        
         let title = titleElem ? titleElem.innerText.trim() : 'Notice';
         let description = descElem ? descElem.innerText.trim() : '';
         let meta = metaElem ? metaElem.innerText.trim() : 'Latest update';
-        noticesArray.push({ title, description, meta, id: idx });
+        
+        noticesArray.push({ 
+          title, 
+          description, 
+          meta, 
+          id: idx 
+        });
       });
+      
       return noticesArray;
     }
     
     function renderModalWithAllNotices() {
       if (!modalListContainer) return;
+      
       const allNotices = getAllNoticeData();
+      
       if (allNotices.length === 0) {
-        modalListContainer.innerHTML = '<div style="padding:2rem; text-align:center;">✨ No notices available</div>';
+        modalListContainer.innerHTML = `
+          <div style="padding:2rem; text-align:center;">
+            ✨ No notices available
+          </div>`;
         return;
       }
+      
       modalListContainer.innerHTML = '';
+      
       allNotices.forEach(notice => {
         const modalItem = document.createElement('div');
         modalItem.className = 'modal-notice-item';
@@ -784,50 +808,40 @@ RIGHT SIDE -->
       });
     }
     
-    // simple escape to prevent injection
+    // Simple escape to prevent XSS
     function escapeHtml(str) {
       if (!str) return '';
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-        return c;
-      });
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     }
     
     function openModal() {
       if (!modalOverlay) return;
-      renderModalWithAllNotices();   // refresh list every time to sync with latest DOM
+      
+      renderModalWithAllNotices();
       modalOverlay.classList.add('active');
-      // additionally pause auto-scroll when modal open (better UX)
-      if (isAutoScrolling) {
-        stopAutoScroll();
-      }
-      // add body lock to prevent background scroll (optional)
+      
+      // Pause auto-scroll when modal is open
+      stopAutoScroll();
+      
+      // Prevent background scrolling
       document.body.style.overflow = 'hidden';
     }
     
     function closeModal() {
       if (!modalOverlay) return;
+      
       modalOverlay.classList.remove('active');
       document.body.style.overflow = '';
-      // resume auto-scroll if default is true and mouse not over box
-      if (isAutoScrolling && noticeBox && !noticeBox.matches(':hover')) {
-        // restart only if not hovering over box
-        startAutoScroll();
-      } else if (isAutoScrolling && noticeBox && noticeBox.matches(':hover')) {
-        // if hover, keep paused but flag auto-scroll still true.
-        // no restart because hover pause logic handles on mouseleave will restart.
-        // but we need to ensure consistency: just set that autoscroll is still true
-        // but scroll is currently stopped; mouseleave will restart anyway.
-      } else if (isAutoScrolling) {
+      
+      // Resume auto-scroll if not hovering
+      if (isAutoScrolling && !hoverPaused) {
         startAutoScroll();
       }
     }
     
-    // Event Listeners for View All
+    // Event Listeners
     if (viewAllButton) {
       viewAllButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -839,7 +853,7 @@ RIGHT SIDE -->
       closeModalBtn.addEventListener('click', closeModal);
     }
     
-    // close modal when clicking overlay background
+    // Close modal when clicking overlay background
     if (modalOverlay) {
       modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
@@ -848,56 +862,71 @@ RIGHT SIDE -->
       });
     }
     
-    // ensure ESC key closes modal
+    // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
         closeModal();
       }
     });
     
-    // Optional: when modal closed, ensure auto-scroll behaves well
-    // Also if any manual click on notice inside main box, we don't interfere with auto-scroll but
-    // we can stop auto-scroll for brief if user clicks? but we keep UX smooth: we pause autoscroll only when hover.
-    // No extra up/down buttons (removed)
-    
-    // Edge: dynamic resize or scroll container metrics: preserve
-    // handle window blur just in case: no bugs
-    window.addEventListener('beforeunload', () => {
-      if (autoScrollInterval) clearInterval(autoScrollInterval);
+    // Handle window resize to prevent scroll issues
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (isAutoScrolling && !hoverPaused && 
+            modalOverlay && !modalOverlay.classList.contains('active')) {
+          stopAutoScroll();
+          startAutoScroll();
+        }
+      }, 250);
     });
     
-    // ensure that if the tab becomes hidden we don't cause huge jumps (optional)
-    // small improvement: if auto-scroll and user scrolls manually, we keep it running unless hover?
-    // but we want default auto-scroll. Additional: when user manually scrolls using scrollbar it's fine.
-    // Without up/down buttons, everything remains clean.
-    // Also, important: if auto-scroll is ON and user clicks on any .notice-item, we do not interrupt auto-scroll (except hover is already handling)
-    // make hover pause / resume clean
-    // final: ensure that re-checking the infinite loop: in case the scroll container reaches bottom, we reset top.
-    // everything bug free.
-    
-    // Add a small safety: if scrollContainer is visible and auto-scroll is true, ensure that it's always running except modal/hover.
-    // after modal close or any unexpected state, fix interval.
-    function ensureAutoScrollRunning() {
-      if (isAutoScrolling && !autoScrollInterval && !(noticeBox && noticeBox.matches(':hover')) && (!modalOverlay || !modalOverlay.classList.contains('active'))) {
-        startAutoScroll();
+    // Handle page visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoScroll();
+      } else {
+        if (isAutoScrolling && !hoverPaused && 
+            modalOverlay && !modalOverlay.classList.contains('active')) {
+          startAutoScroll();
+        }
       }
+    });
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+      stopAutoScroll();
+      document.body.style.overflow = '';
+    });
+    
+    // Touch events for mobile - pause scroll on touch
+    if (scrollContainer) {
+      scrollContainer.addEventListener('touchstart', () => {
+        hoverPaused = true;
+        stopAutoScroll();
+      }, { passive: true });
+      
+      scrollContainer.addEventListener('touchend', () => {
+        hoverPaused = false;
+        if (isAutoScrolling && 
+            modalOverlay && !modalOverlay.classList.contains('active')) {
+          startAutoScroll();
+        }
+      }, { passive: true });
     }
     
-    // periodical check to avoid any race condition (every 2 secs)
-    setInterval(() => {
-      ensureAutoScrollRunning();
-    }, 2000);
-    
-    // if container is scrolled manually while auto-scroll is enabled: we don't want to stop auto-scroll
-    // only hover and modal pause. So fine.
-    // initial style: remove all previous buttons related to up/down: they are fully removed from DOM (no .scroll-controls)
-    // notice: no up/down buttons as per requirement.
-    // Also view all works like charm: modal shows full list.
-    
-    // extra polish: provide smooth accessibility.
     console.log('✅ Auto-scroll active by default | View All modal fully functional');
   })();
 </script>
+
+
+
+
+
+
+
+
 
 
 
